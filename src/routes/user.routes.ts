@@ -1,16 +1,12 @@
-import { Router } from 'express'
 import express from 'express'
 
-const movieRoutes = express()
+const userRoutes = express()
 
 // router.get('/movies').get()
-movieRoutes.route('/movie').get((req, res) => {
+userRoutes.route('/user').get((req, res) => {
   res.send('hey')
 })
 
-movieRoutes.route('/movies').get((req, res) => {
-  res.send('testtt')
-})
 // movieRouter.use('/movie').get('/:id', getMovie).post('', postMovie).put('', putMovie).delete('', deleteMovie)
 
 // const authCheck= require('../middlewares/checkToken')
@@ -19,4 +15,4 @@ movieRoutes.route('/movies').get((req, res) => {
 // router.put('/sendMessage',authCheck.checkToken ,upload.single('messageImg'), messagesMiddlewares.checkBeforeSendMessage, messagesController.sendMessage);
 // router.put('/messageRead',authCheck.checkToken ,messagesMiddlewares.checkIdMessage, messagesController.updateRead)
 
-export default movieRoutes
+export default userRoutes

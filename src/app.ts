@@ -1,41 +1,56 @@
-//Importation dotenv pour sécuriser des données sensible
-require('dotenv').config({ path: './config/.env' })
-
 //Importation Framework Express
-import express from 'express'
-const app = express()
+import express, { Router } from 'express'
+import * as http from 'http'
+import cors from 'cors'
+import { CommonRoutesConfig } from './common/common.routes.config'
+import { UsersRoutes } from './users/routes/users.routes.config'
+import * as winston from 'winston'
+import * as expressWinston from 'express-winston'
+import 'dotenv/config'
+import { getPool } from './config/db'
 
-// import http from 'http'
-// const server = http.createServer(app)
+const app: express.Application = express()
+const server: http.Server = http.createServer(app)
 
-//CORS
-// import cors from 'cors';
-// const corsOptions= {
-//   origin: 'http://localhost:3000',
-//   credentials: true
+const port = 3000
+const routes: Array<CommonRoutesConfig> = []
+
+// export const pool = getPool()
+// const connectToDB = async () => {
+
+//   try {
+//     await pool.connect()
+//   } catch (err) {
+//     console.log(err)
+//   }
 // }
+// connectToDB()
 
-// app.use(cors(corsOptions));
-
-// Routes
-const userRoutes = require('./routes/users.routes')
-const authRoutes = require('./routes/auth.routes')
-const messagesRoutes = require('./routes/messages.routes')
-
-// Parser
+//Parse all incoming requests as JSON
 app.use(express.json())
-const cookieParser = require('cookie-parser')
-app.use(express.urlencoded({ extended: true }))
-app.use(cookieParser())
 
-//Routes
+// here we are adding middleware to allow cross-origin requests
+app.use(cors())
 
-app.use('/api/user', userRoutes)
-app.use('/api/auth/', authRoutes)
-app.use('/api/messages', messagesRoutes)
+// here we are preparing the expressWinston logging middleware configuration,
+// which will automatically log all HTTP requests handled by Express.js
+const loggerOptions: expressWinston.LoggerOptions = {
+  transports: [new winston.transports.Console()],
+  format: winston.format.combine(
+    winston.format.json(),
+    winston.format.prettyPrint(),
+    winston.format.colorize({ all: true })
+  ),
+}
 
-app.listen(process.env.PORT, () => {
-  console.log(`Listening on port ${process.env.PORT}`)
+app.use(expressWinston.logger(loggerOptions))
+
+routes.push(new UsersRoutes(app))
+
+const runningMessage = `Server running at http://localhost:${port}`
+
+server.listen(port, () => {
+  // our only exception to avoiding console.log(), because we
+  // always want to know when the server is done starting up
+  console.log(runningMessage)
 })
-
-export default app

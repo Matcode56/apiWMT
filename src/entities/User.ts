@@ -1,4 +1,4 @@
-export class User {
+class User {
   constructor(
     private id: number,
     private last_name: string,
