@@ -4,11 +4,12 @@ import { hashPassword } from '../../common/utils/cryptagePassword'
 import { CreateUserDTO } from '../DTO/CreateUserDTO'
 import { GetUsersDTO } from '../DTO/getUsersDTO'
 import { GetUserDTO } from '../DTO/getUserDTO'
+import { PatchUserDTO } from '../DTO/patchUserDTO'
 
 class UsersController {
   async getUsers(req: express.Request, res: express.Response): Promise<express.Response<GetUsersDTO[]>> {
     try {
-      const size: number = req.query.size ? Number(req.query.page) : 20
+      const size: number = req.query.size ? Number(req.query.size) : 20
       const page: number = req.query.page ? Number(req.query.page) : 0
 
       const users: GetUsersDTO = await usersService.getAll(size, page)
@@ -35,21 +36,17 @@ class UsersController {
     const user: CreateUserDTO = req.body
     const passwordHashed = await hashPassword(user.password)
     const userWithHashedPassword: CreateUserDTO = { ...user, password: passwordHashed }
-    const userId = await usersService.create(userWithHashedPassword)
-    res.status(201).send({ id: userId })
+    await usersService.create(userWithHashedPassword)
+    res.status(201).send({ message: 'User created' })
   }
 
   async patch(req: express.Request, res: express.Response) {
     if (req.body.password) {
       req.body.password = await hashPassword(req.body.password)
     }
-    console.log(await usersService.patchById(req.body.id, req.body))
-    res.status(204).send()
-  }
+    const user: PatchUserDTO = req.body
 
-  async put(req: express.Request, res: express.Response) {
-    req.body.password = await hashPassword(req.body.password)
-    console.log(await usersService.putById(req.body.id, req.body))
+    await usersService.patchById(user.id, user)
     res.status(204).send()
   }
 

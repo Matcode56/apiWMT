@@ -1,12 +1,11 @@
 import { CreateUserDTO } from '../DTO/CreateUserDTO'
 import { GetUserDTO } from '../DTO/getUserDTO'
 import { PatchUserDTO } from '../DTO/patchUserDTO'
-import { PutUserDTO } from '../DTO/putUserDTO'
 import { User } from '../entite/user'
 import { UserDatabase } from '../models/userDatabase'
 
 export class UserMapper {
-  static mapToDatabase = (userDTO: CreateUserDTO | PutUserDTO | PatchUserDTO): Partial<UserDatabase> => {
+  static mapToDatabase = (userDTO: CreateUserDTO | PatchUserDTO): Partial<UserDatabase> => {
     const keyCorrespondence = {
       id: 'id',
       email: 'email',

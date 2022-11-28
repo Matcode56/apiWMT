@@ -4,19 +4,37 @@ import debug from 'debug'
 
 const log: debug.IDebugger = debug('app:users-controller')
 class UsersMiddleware {
-  async extractUserId(req: express.Request, res: express.Response, next: express.NextFunction) {
+  extractUserId(req: express.Request, res: express.Response, next: express.NextFunction) {
     req.body.id = req.params.userId
     next()
   }
 
-  async validateRequiredUserBodyFields(req: express.Request, res: express.Response, next: express.NextFunction) {
-    if (req.body && req.body.email && req.body.password) {
+  validateNotEmptyBody(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const bodyLength = Object.keys(req.body).length
+    bodyLength === 0 ? res.status(400).send({ error: 'error empty body' }) : next()
+  }
+
+  validateRequiredUserBodyFields(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const requiredField = ['email', 'password', 'lastName', 'firstName']
+    const fields = Object.keys(req.body)
+    const isEqual = fields.every(val => requiredField.find(field => field === val))
+    if (isEqual) {
       next()
     } else {
       res.status(400).send({
-        error: `Missing required fields email and password`,
+        error: `Missing required fields`,
       })
     }
+  }
+
+  validatePatchUserField(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const allowedFields = ['email', 'lastName', 'firstName', 'password', 'id']
+    const fields = Object.keys(req.body)
+    const isValidFields = fields.some(elt => allowedFields.find(field => field === elt))
+    if (!isValidFields) {
+      res.status(400).send({ error: 'Invalid field' })
+    }
+    next()
   }
 
   async validateSameEmailDoesntExist(req: express.Request, res: express.Response, next: express.NextFunction) {

@@ -6,7 +6,6 @@ import { CreateUserDTO } from '../DTO/CreateUserDTO'
 import { GetUserDTO } from '../DTO/getUserDTO'
 import { GetUsersDTO } from '../DTO/getUsersDTO'
 import { PatchUserDTO } from '../DTO/patchUserDTO'
-import { PutUserDTO } from '../DTO/putUserDTO'
 import { User } from '../entite/user'
 import { UserMapper } from '../mapper/userMapper'
 import { UserDatabase } from '../models/userDatabase'
@@ -33,31 +32,33 @@ class UsersService implements CRUD {
       ...pagination,
       users: usersDTO,
     }
-    console.log(resDTO)
 
     return resDTO
   }
 
   async getById(id: number): Promise<GetUserDTO> {
     const userDB: UserDatabase = await UsersDao.getUserById(id)
+    if (!userDB) {
+      return undefined
+    }
     const user: User = UserMapper.mapToEntite(userDB)
     const userDTO: GetUserDTO = UserMapper.mapToDTO(user)
     return userDTO
   }
 
-  async getByEmail(email: string) {
-    return UsersDao.getUserByEmail(email)
+  async getByEmail(email: string): Promise<GetUserDTO> {
+    const userDB: UserDatabase = await UsersDao.getUserByEmail(email)
+    if (!userDB) {
+      return undefined
+    }
+    const user: User = UserMapper.mapToEntite(userDB)
+    const userDTO: GetUserDTO = UserMapper.mapToDTO(user)
+    return userDTO
   }
 
-  async patchById(id: number, resource: PatchUserDTO) {
-    return UsersDao.patchUserById(id, resource)
-  }
-
-  async putById(id: number, resource: PutUserDTO) {
-    // try{
-
-    // }
-    return UsersDao.putUserById(id, resource)
+  async patchById(userId: number, resource: PatchUserDTO) {
+    const userUpdated = UserMapper.mapToDatabase(resource)
+    return UsersDao.patchUserById(userUpdated.id, userUpdated)
   }
 }
 
