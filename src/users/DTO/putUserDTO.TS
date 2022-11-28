@@ -1,6 +1,4 @@
-import { ROLES } from '../enum/ROLE'
-
-export class User {
+export interface PutUserDTO {
   id: number
   email: string
   password: string

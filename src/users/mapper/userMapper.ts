@@ -1,10 +1,12 @@
 import { CreateUserDTO } from '../DTO/CreateUserDTO'
-import { GetUserDTO } from '../DTO/GetUserDTO'
-import { UpdateUserDTO } from '../DTO/updateUserDTO'
+import { GetUserDTO } from '../DTO/getUserDTO'
+import { PatchUserDTO } from '../DTO/patchUserDTO'
+import { PutUserDTO } from '../DTO/putUserDTO'
 import { User } from '../entite/user'
+import { UserDatabase } from '../models/userDatabase'
 
 export class UserMapper {
-  static mapToEntite = (userDTO: CreateUserDTO | UpdateUserDTO): Partial<User> => {
+  static mapToDatabase = (userDTO: CreateUserDTO | PutUserDTO | PatchUserDTO): Partial<UserDatabase> => {
     const keyCorrespondence = {
       id: 'id',
       email: 'email',
@@ -12,7 +14,7 @@ export class UserMapper {
       firstName: 'first_name',
       lastName: 'last_name',
     }
-    const user: Partial<User> = Object.keys(userDTO).reduce((acc, elem) => {
+    const user: Partial<UserDatabase> = Object.keys(userDTO).reduce((acc, elem) => {
       const key: string = keyCorrespondence[elem]
 
       const newValue = { [key]: userDTO[elem] }
@@ -24,14 +26,23 @@ export class UserMapper {
     return user
   }
 
-  static mapToDTO = (user: User): GetUserDTO => {
-    console.log(user)
-
-    const userDTO: GetUserDTO = {
+  static mapToEntite = (user: UserDatabase): User => {
+    const userEntite: User = {
       id: user.id,
       email: user.email,
       firstName: user.first_name,
       lastName: user.last_name,
+      password: user.password,
+    }
+    return userEntite
+  }
+
+  static mapToDTO = (user: User): GetUserDTO => {
+    const userDTO: GetUserDTO = {
+      id: user.id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
     }
     return userDTO
   }

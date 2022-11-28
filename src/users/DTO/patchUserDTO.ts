@@ -1,4 +1,4 @@
-export interface UpdateUserDTO {
+export interface PatchUserDTO {
   id: number
   email?: string
   password?: string

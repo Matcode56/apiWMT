@@ -1,10 +1,18 @@
+import { QueryResult } from 'pg'
 import { CRUD } from '../../common/CRUD'
+import { paginatedResults, PaginatedResults } from '../../common/utils/paginatedResults'
 import UsersDao from '../DAO/usersDao'
 import { CreateUserDTO } from '../DTO/CreateUserDTO'
-import { UpdateUserDTO } from '../DTO/updateUserDTO'
+import { GetUserDTO } from '../DTO/getUserDTO'
+import { GetUsersDTO } from '../DTO/getUsersDTO'
+import { PatchUserDTO } from '../DTO/patchUserDTO'
+import { PutUserDTO } from '../DTO/putUserDTO'
+import { User } from '../entite/user'
+import { UserMapper } from '../mapper/userMapper'
+import { UserDatabase } from '../models/userDatabase'
 
 class UsersService implements CRUD {
-  async create(resource: CreateUserDTO) {
+  async create(resource: CreateUserDTO): Promise<boolean> {
     return UsersDao.addUser(resource)
   }
 
@@ -12,23 +20,43 @@ class UsersService implements CRUD {
     return UsersDao.removeUserById(id)
   }
 
-  async getAll(limit: number, page: number) {
-    return UsersDao.getUsers()
+  async getAll(size: number, page: number): Promise<GetUsersDTO> {
+    const offset: number = size * page
+    const numberUsers = await UsersDao.getNumberUsers()
+    const responseDB: QueryResult = await UsersDao.getUsers(size, offset)
+    const pagination: PaginatedResults = paginatedResults(responseDB, offset, numberUsers)
+    const usersDB: UserDatabase[] = responseDB.rows
+
+    const users: User[] = usersDB.map(userDB => UserMapper.mapToEntite(userDB))
+    const usersDTO: GetUserDTO[] = users.map(userDB => UserMapper.mapToDTO(userDB))
+    const resDTO: GetUsersDTO = {
+      ...pagination,
+      users: usersDTO,
+    }
+    console.log(resDTO)
+
+    return resDTO
   }
 
-  async getById(id: number) {
-    return UsersDao.getUserById(id)
+  async getById(id: number): Promise<GetUserDTO> {
+    const userDB: UserDatabase = await UsersDao.getUserById(id)
+    const user: User = UserMapper.mapToEntite(userDB)
+    const userDTO: GetUserDTO = UserMapper.mapToDTO(user)
+    return userDTO
   }
 
-  getByEmail = async (email: string) => {
+  async getByEmail(email: string) {
     return UsersDao.getUserByEmail(email)
   }
 
-  async patchById(id: number, resource: UpdateUserDTO) {
+  async patchById(id: number, resource: PatchUserDTO) {
     return UsersDao.patchUserById(id, resource)
   }
 
-  async putById(id: number, resource: UpdateUserDTO) {
+  async putById(id: number, resource: PutUserDTO) {
+    // try{
+
+    // }
     return UsersDao.putUserById(id, resource)
   }
 }

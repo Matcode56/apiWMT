@@ -1,22 +1,18 @@
 import express from 'express'
-
 import usersService from '../services/users.service'
-
-import bcrypt from 'bcrypt'
-
-import debug from 'debug'
-
 import { hashPassword } from '../../common/utils/cryptagePassword'
 import { CreateUserDTO } from '../DTO/CreateUserDTO'
-import { UserMapper } from '../mapper/userMapper'
-import { GetUserDTO } from '../DTO/GetUserDTO'
+import { GetUsersDTO } from '../DTO/getUsersDTO'
+import { GetUserDTO } from '../DTO/getUserDTO'
 
 class UsersController {
-  async getUsers(req: express.Request, res: express.Response) {
+  async getUsers(req: express.Request, res: express.Response): Promise<express.Response<GetUsersDTO[]>> {
     try {
-      const users = await usersService.getAll(100, 0)
-      const usersDTO: GetUserDTO[] = users.map(user => UserMapper.mapToDTO(user))
-      return res.status(200).send(usersDTO)
+      const size: number = req.query.size ? Number(req.query.page) : 20
+      const page: number = req.query.page ? Number(req.query.page) : 0
+
+      const users: GetUsersDTO = await usersService.getAll(size, page)
+      return res.status(200).send(users)
     } catch (err) {
       return res.status(500).send('erreur')
     }
@@ -25,11 +21,10 @@ class UsersController {
   async getUserById(req: express.Request, res: express.Response) {
     try {
       const id: number = Number(req.params.userId)
-      const user = await usersService.getById(id)
-      if (!user) {
+      const userDTO: GetUserDTO = await usersService.getById(id)
+      if (!userDTO) {
         return res.status(404).send('user unfound')
       }
-      const userDTO = UserMapper.mapToDTO(user)
       return res.status(200).send(userDTO)
     } catch (err) {
       res.status(500).send(err)
