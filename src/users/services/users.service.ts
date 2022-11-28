@@ -60,6 +60,11 @@ class UsersService implements CRUD {
     const userUpdated = UserMapper.mapToDatabase(resource)
     return UsersDao.patchUserById(userUpdated.id, userUpdated)
   }
+
+  async getUserByEmailWithPassword(email: string): Promise<UserDatabase> {
+    const user = await UsersDao.getUserByEmail(email)
+    return user
+  }
 }
 
 export default new UsersService()

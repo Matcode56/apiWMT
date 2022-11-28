@@ -2,7 +2,6 @@ import { Pool } from 'pg'
 import * as dotenv from 'dotenv'
 require('dotenv').config({ path: __dirname + '/../.env' })
 
-export const test = process.env.PG_DATABSE
 export const getPool = () => {
   console.log(Number(process.env.PG_PORT))
 
