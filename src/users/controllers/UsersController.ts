@@ -40,14 +40,13 @@ class UsersController {
     res.status(201).send({ message: 'User created' })
   }
 
-  async patch(req: express.Request, res: express.Response) {
+  async updateUser(req: express.Request, res: express.Response) {
     if (req.body.password) {
       req.body.password = await hashPassword(req.body.password)
     }
     const user: PatchUserDTO = req.body
-
     await usersService.patchById(user.id, user)
-    res.status(204).send()
+    res.status(204).send({ message: 'user Updated' })
   }
 
   async removeUser(req: express.Request, res: express.Response) {

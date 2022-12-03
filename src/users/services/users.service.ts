@@ -1,5 +1,4 @@
 import { QueryResult } from 'pg'
-import { CRUD } from '../../common/CRUD'
 import { paginatedResults, PaginatedResults } from '../../common/utils/paginatedResults'
 import UsersDao from '../DAO/usersDao'
 import { CreateUserDTO } from '../DTO/CreateUserDTO'
@@ -9,14 +8,11 @@ import { PatchUserDTO } from '../DTO/patchUserDTO'
 import { User } from '../entite/user'
 import { UserMapper } from '../mapper/userMapper'
 import { UserDatabase } from '../models/userDatabase'
+import { userCRUD } from '../types/userCRUD'
 
-class UsersService implements CRUD {
+class UsersService implements userCRUD {
   async create(resource: CreateUserDTO): Promise<boolean> {
     return UsersDao.addUser(resource)
-  }
-
-  async deleteById(id: number) {
-    return UsersDao.removeUserById(id)
   }
 
   async getAll(size: number, page: number): Promise<GetUsersDTO> {
@@ -59,6 +55,10 @@ class UsersService implements CRUD {
   async patchById(userId: number, resource: PatchUserDTO) {
     const userUpdated = UserMapper.mapToDatabase(resource)
     return UsersDao.patchUserById(userUpdated.id, userUpdated)
+  }
+
+  async deleteById(id: number) {
+    return UsersDao.removeUserById(id)
   }
 
   async getUserByEmailWithPassword(email: string): Promise<UserDatabase> {

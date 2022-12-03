@@ -3,7 +3,6 @@ import { User } from '../entite/user'
 import { QueryResult } from 'pg'
 import { CreateUserDTO } from '../DTO/CreateUserDTO'
 import { UserDatabase } from '../models/userDatabase'
-import { PatchUserDTO } from '../DTO/patchUserDTO'
 import { createPatchRequest } from '../../common/utils/createPatchRequest'
 
 require('dotenv').config()
@@ -86,10 +85,15 @@ class UsersDao {
     }
   }
 
-  async removeUserById(userId: number) {
-    const objIndex = this.users.findIndex((obj: { id: number }) => obj.id === userId)
-    this.users.splice(objIndex, 1)
-    return `${userId} removed`
+  async removeUserById(userId: number): Promise<boolean> {
+    const query = 'DELETE FROM users WHERE id=$1'
+    const value = [userId]
+    try {
+      await this.poolPostgres.query(query, value)
+      return true
+    } catch (err) {
+      throw new Error(err)
+    }
   }
 }
 

@@ -32,6 +32,7 @@ export class UserMapper {
       firstName: user.first_name,
       lastName: user.last_name,
       password: user.password,
+      role: user.role,
     }
     return userEntite
   }

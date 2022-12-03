@@ -1,11 +1,13 @@
 import express from 'express'
 import userService from '../services/users.service'
 import debug from 'debug'
+import { TokenJwt } from '../../auth/types/jwt'
+import { verifyIsAdmin } from '../../auth/utils/verifyIsAdmin'
 
 const log: debug.IDebugger = debug('app:users-controller')
 class UsersMiddleware {
   extractUserId(req: express.Request, res: express.Response, next: express.NextFunction) {
-    req.body.id = req.params.userId
+    req.body.id = Number(req.params.userId)
     next()
   }
 
@@ -27,12 +29,22 @@ class UsersMiddleware {
     }
   }
 
+  validateIsAuthorized(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const token: TokenJwt = res.locals.token
+    const userId: number = req.body.id
+    const isAdmin: boolean = verifyIsAdmin(token)
+    if (!isAdmin && token.idUser !== userId) {
+      return res.status(401).send({ error: 'Unauthorized' })
+    }
+    next()
+  }
+
   validatePatchUserField(req: express.Request, res: express.Response, next: express.NextFunction) {
     const allowedFields = ['email', 'lastName', 'firstName', 'password', 'id']
     const fields = Object.keys(req.body)
     const isValidFields = fields.some(elt => allowedFields.find(field => field === elt))
     if (!isValidFields) {
-      res.status(400).send({ error: 'Invalid field' })
+      return res.status(400).send({ error: 'Invalid field' })
     }
     next()
   }
@@ -55,11 +67,8 @@ class UsersMiddleware {
     }
   }
 
-  // Here we need to use an arrow function to bind `this` correctly
   validatePatchEmail = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     if (req.body.email) {
-      log('Validating email', req.body.email)
-
       this.validateSameEmailBelongToSameUser(req, res, next)
     } else {
       next()
