@@ -76,9 +76,7 @@ class UsersDao {
     console.log(request)
 
     try {
-      const responseDB: QueryResult = await this.poolPostgres.query(request)
-      console.log(responseDB)
-
+      await this.poolPostgres.query(request)
       return true
     } catch (err) {
       throw new Error(err)

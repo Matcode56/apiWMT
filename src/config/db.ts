@@ -3,8 +3,6 @@ import * as dotenv from 'dotenv'
 require('dotenv').config({ path: __dirname + '/../.env' })
 
 export const getPool = () => {
-  console.log(Number(process.env.PG_PORT))
-
   const pool = new Pool({
     user: process.env.PG_USER,
     host: process.env.PG_HOST,

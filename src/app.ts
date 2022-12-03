@@ -9,6 +9,7 @@ import * as expressWinston from 'express-winston'
 import 'dotenv/config'
 import { getPool } from './config/db'
 import { AuthRoutes } from './auth/routes/auth.routes'
+import { MoviesRoutes } from './movies/routes/movies.routes'
 
 const app: express.Application = express()
 const server: http.Server = http.createServer(app)
@@ -48,6 +49,7 @@ app.use(expressWinston.logger(loggerOptions))
 
 routes.push(new UsersRoutes(app))
 routes.push(new AuthRoutes(app))
+routes.push(new MoviesRoutes(app))
 
 const runningMessage = `Server running at http://localhost:${port}`
 

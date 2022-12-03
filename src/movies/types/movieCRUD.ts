@@ -1,4 +1,4 @@
-export class movieCRUD {
+export interface movieCRUD {
   getAll: (limit: number, page: number) => Promise<any>
   getById: (id: number) => Promise<any>
   create: (resource: any) => Promise<boolean>

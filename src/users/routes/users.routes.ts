@@ -22,7 +22,7 @@ export class UsersRoutes extends CommonRoutesConfig {
       )
 
     this.app
-      .route(`/users/:userId`)
+      .route(`/user/:userId`)
       .get(
         usersMiddleware.extractUserId,
         authMiddleware.extractTokenHeader,

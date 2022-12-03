@@ -4,16 +4,10 @@ import debug from 'debug'
 import { TokenJwt } from '../../auth/types/jwt'
 import { verifyIsAdmin } from '../../auth/utils/verifyIsAdmin'
 
-const log: debug.IDebugger = debug('app:users-controller')
 class UsersMiddleware {
   extractUserId(req: express.Request, res: express.Response, next: express.NextFunction) {
     req.body.id = Number(req.params.userId)
     next()
-  }
-
-  validateNotEmptyBody(req: express.Request, res: express.Response, next: express.NextFunction) {
-    const bodyLength = Object.keys(req.body).length
-    bodyLength === 0 ? res.status(400).send({ error: 'error empty body' }) : next()
   }
 
   validateRequiredUserBodyFields(req: express.Request, res: express.Response, next: express.NextFunction) {
@@ -40,7 +34,7 @@ class UsersMiddleware {
   }
 
   validatePatchUserField(req: express.Request, res: express.Response, next: express.NextFunction) {
-    const allowedFields = ['email', 'lastName', 'firstName', 'password', 'id']
+    const allowedFields = ['email', 'lastName', 'firstName', 'password']
     const fields = Object.keys(req.body)
     const isValidFields = fields.some(elt => allowedFields.find(field => field === elt))
     if (!isValidFields) {

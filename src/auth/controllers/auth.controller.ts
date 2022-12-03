@@ -8,8 +8,6 @@ const tokenExpirationInSeconds = '1d'
 class AuthController {
   async createJWT(req: express.Request, res: express.Response) {
     try {
-      console.log(res.locals.userId)
-
       const token = jwt.sign({ userId: res.locals.userId, role: res.locals.userRole }, jwtSecret, {
         expiresIn: tokenExpirationInSeconds,
       })

@@ -14,12 +14,12 @@ class UsersController {
 
       const users: GetUsersDTO = await usersService.getAll(size, page)
       return res.status(200).send(users)
-    } catch (err) {
-      return res.status(500).send('erreur')
+    } catch (error) {
+      return res.status(500).send({ error })
     }
   }
 
-  async getUserById(req: express.Request, res: express.Response) {
+  async getUserById(req: express.Request, res: express.Response): Promise<express.Response<GetUserDTO>> {
     try {
       const id: number = Number(req.params.userId)
       const userDTO: GetUserDTO = await usersService.getById(id)
@@ -27,8 +27,8 @@ class UsersController {
         return res.status(404).send('user unfound')
       }
       return res.status(200).send(userDTO)
-    } catch (err) {
-      res.status(500).send(err)
+    } catch (error) {
+      res.status(500).send({ error })
     }
   }
 
@@ -36,22 +36,34 @@ class UsersController {
     const user: CreateUserDTO = req.body
     const passwordHashed = await hashPassword(user.password)
     const userWithHashedPassword: CreateUserDTO = { ...user, password: passwordHashed }
-    await usersService.create(userWithHashedPassword)
-    res.status(201).send({ message: 'User created' })
+    try {
+      await usersService.create(userWithHashedPassword)
+      res.status(201).send({ message: 'User created' })
+    } catch (error) {
+      res.status(500).send({ error })
+    }
   }
 
   async updateUser(req: express.Request, res: express.Response) {
     if (req.body.password) {
       req.body.password = await hashPassword(req.body.password)
     }
-    const user: PatchUserDTO = req.body
-    await usersService.patchById(user.id, user)
-    res.status(204).send({ message: 'user Updated' })
+    try {
+      const user: PatchUserDTO = req.body
+      await usersService.patchById(user.id, user)
+      res.status(204).send({ message: 'user Updated' })
+    } catch (error) {
+      res.status(500).send({ error })
+    }
   }
 
   async removeUser(req: express.Request, res: express.Response) {
-    console.log(await usersService.deleteById(req.body.id))
-    res.status(204).send()
+    try {
+      await usersService.deleteById(req.body.id)
+      res.status(204).send()
+    } catch (error) {
+      res.status(500).send({ error })
+    }
   }
 }
 
